@@ -1,13 +1,9 @@
 const mongoose = require('../db/conn');
 const { Schema } = mongoose;
 const mongooseDelete = require('mongoose-delete');
+const moment = require('moment-timezone');
 
 const ParticipanteSchema = new Schema({
-    id_participante: {
-        type: Number,
-        required: true,
-        unique: true,
-    },
     cpf: {
         type: String,
         required: true,
@@ -28,37 +24,18 @@ const ParticipanteSchema = new Schema({
         type: String,
         required: true,
     },
-    id_tipo_participante: {
-        type: Schema.Types.ObjectId,
-        ref: 'TipoParticipante',
+    tipoParticipante:{
+        type: Number,
         required: true,
-    },
-    id_tipo_iniciacao: {
-        type: Schema.Types.ObjectId,
-        ref: 'TipoIniciacao',
-        required: true,
-    },
-    id_curso: {
-        type: Schema.Types.ObjectId,
-        ref: 'Curso',
-        required: true,
-    },
-    campus: {
-        type: String,
-        required: true,
-    },
-    id_departamento: {
-        type: Schema.Types.ObjectId,
-        ref: 'Departamento',
-        required: true,
-    },
-    id_sub_area: {
-        type: Schema.Types.ObjectId,
-        ref: 'SubArea',
-        required: true,
-    },
+    }
 }, { timestamps: true });
-
+ParticipanteSchema.set('toJSON',{
+    transform: (doc, ret) => {
+        ret.createdAt = moment(ret.createdAt).tz('America/Sao_Paulo').format('DD/MM/YYYY HH:mm:ss');
+        ret.updatedAt = moment(ret.updatedAt).tz('America/Sao_Paulo').format('DD/MM/YYYY HH:mm:ss');
+        return ret;
+    }
+})
 // Adiciona o plugin mongoose-delete para soft delete
 ParticipanteSchema.plugin(mongooseDelete, { deletedAt: true, overrideMethods: 'all' });
 
