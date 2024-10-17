@@ -155,7 +155,7 @@ module.exports = class ParticipanteController{
 
         if(!participante){
             res.status(422).json({
-                message: 'ID inválido. Usuário não encontrado'
+                message: 'ID inválido. Participante não encontrado'
             })
             return
         }
@@ -165,9 +165,17 @@ module.exports = class ParticipanteController{
     }
 
     static async editarParticipante(req,res){
-        res.status(200).json({
-            message: 'Update concluido com sucesso'
-        })
-        return
+        const id = req.params.id
+        const {cpf,nome,email,telefone} = req.body
+        const participante = await Participante.findById(id)
+
+        if(!participante){
+            res.status(422).json({
+                message: 'Participante não encontrado!'
+            })
+            return
+        }
+
+        
     }
 }
