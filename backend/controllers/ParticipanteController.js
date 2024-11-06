@@ -2,8 +2,11 @@ const Participante = require('../models/Participante')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const {cpf: cpfValidator} = require('cpf-cnpj-validator')
-const createParticipanteToken = require('../helpers/create-user-token')
+
+//helpers
+const createParticipanteToken = require('../helpers/create-participante-token')
 const getToken = require('../helpers/get-token')
+const getParticipanteByToken = require('../helpers/get-participante-by-token')
 
 module.exports = class ParticipanteController{
     static async registrar(req,res){
@@ -167,11 +170,21 @@ module.exports = class ParticipanteController{
     static async editarParticipante(req,res){
         const id = req.params.id
         const {cpf,nome,email,telefone} = req.body
-        const participante = await Participante.findById(id)
-
+        const token = getToken(req)
+        const participante = await getParticipanteByToken(token)
+        //VALIDAÇÕES DE USUÁRIO - FALTA COMPLETAR
         if(!participante){
             res.status(422).json({
                 message: 'Participante não encontrado!'
+            })
+            return
+        }
+
+        //se o email for igual a um email que já existe, não permite que seja cadastrado
+        const emailExists = await Participante.findOne({email:email})
+        if(participante.email !== email && emailExists){
+            res.status(422).json({
+                message: 'Email já cadastrado na base de dados!'
             })
             return
         }
