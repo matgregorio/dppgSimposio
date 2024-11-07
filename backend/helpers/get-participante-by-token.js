@@ -11,7 +11,7 @@ const getParticipanteByToken = async (token) => {
     }
     const decoded = jwt.verify(token, "nossosecret")    
 
-    const participanteId = decoded._id
+    const participanteId = decoded.id
 
     const participante = await Participante.findOne({_id: participanteId})
 

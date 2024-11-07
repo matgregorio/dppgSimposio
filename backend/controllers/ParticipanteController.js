@@ -168,16 +168,70 @@ module.exports = class ParticipanteController{
     }
 
     static async editarParticipante(req,res){
+        //ATENÇÃO
+        //NECESSÁRIO FAZER TODAS AS VERIFICAÇÕES DE CPF, EMAIL E ETC.
+        //VERIFICAR SE NÃO TEM EMAIL EM USO NA BASE DE DADOS JÁ FOI UMA ALTERAÇÃO QUE DEU CERTO
         const id = req.params.id
-        const {cpf,nome,email,telefone} = req.body
+        const {cpf,nome,senha,confirmarSenha,email,telefone} = req.body
         const token = getToken(req)
         const participante = await getParticipanteByToken(token)
         //VALIDAÇÕES DE USUÁRIO - FALTA COMPLETAR
         if(!participante){
             res.status(422).json({
-                message: 'Participante não encontrado!'
+                message: 'Participante não encontrado!',
+                participante
             })
             return
+        }
+        if(!email){
+            res.status(422).json({
+                message: 'O campo email deve ser preenchido!'
+            })
+            return
+        }
+        participante.email = email
+
+        if(!telefone){
+            res.status(422).json({
+                message: 'O campo telefone deve ser preenchido!'
+            })
+            return
+        }
+        participante.telefone = telefone
+
+        
+        if(!nome){
+            res.status(422).json({
+                message: 'O campo nome deve ser preenchido!'
+            })
+            return
+        }
+        participante.nome = nome
+
+        if(!senha){
+            res.status(422).json({
+                message: 'O campo senha deve ser preenchido!'
+            })
+            return
+        }
+
+        if(!confirmarSenha){
+            res.status(422).json({
+                message: 'O campo de confirmar senha deve ser preenchido!'
+            })
+            return
+        }
+        if(senha != confirmarSenha){
+            res.status(422).json({
+                message: 'As senhas devem conferir!'
+            })
+            return
+        }else if(senha === confirmarSenha && senha != null){
+            //criar nova senha para usuário
+            const salt = await bcrypt.genSalt(12)
+            const senhaHash = await bcrypt.hash(senha, salt)
+
+            participante.senha = senhaHash
         }
 
         //se o email for igual a um email que já existe, não permite que seja cadastrado
@@ -187,6 +241,19 @@ module.exports = class ParticipanteController{
                 message: 'Email já cadastrado na base de dados!'
             })
             return
+        }
+
+        try{
+            //retornando dados atualizados
+            await Participante.findOneAndUpdate(
+                {_id: participante.id},
+                {$set : participante},
+                {new: true},
+            )
+            res.status(200).json({message: 'Participante atualizado com sucesso!'})
+        }catch(err){
+            res.status(500).json({message: err})
+            return 
         }
 
         
