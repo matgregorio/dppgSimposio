@@ -8,6 +8,8 @@ router.post('/registrar', ParticipanteController.registrar)
 router.post('/login', ParticipanteController.login)
 router.get('/checkParticipante/:id', ParticipanteController.checkParticipante)
 router.get('/:id', ParticipanteController.getParticipanteById)
+router.get('/buscaCpf/:cpf', ParticipanteController.getParticipanteByCpf)
 router.patch('/editar/:id',verifyToken, ParticipanteController.editarParticipante)
+
 
 module.exports = router

@@ -82,6 +82,7 @@ module.exports = class ParticipanteController{
         //criando a senha
         const novaSenha = await bcrypt.genSalt(12)
         const senhaHash = await bcrypt.hash(senha, novaSenha)
+        const anoAtual = new Date().getFullYear();
         //criando participante
         const participante = new Participante({
             cpf,
@@ -89,7 +90,8 @@ module.exports = class ParticipanteController{
             nome,
             email,
             telefone,
-            tipoParticipante
+            tipoParticipante,
+            ano: anoAtual
         })
 
         try{
@@ -165,6 +167,19 @@ module.exports = class ParticipanteController{
             res.status(200).json({ participante })
 
 
+    }
+
+    static async getParticipanteByCpf(req, res){
+        const {cpf} = req.params
+        
+        const participante = await Participante.findOne({cpf}).select("-senha")
+        if(!participante){          
+            res.status(422).json({
+                message: 'CPF inválido. Participante não encontrado'
+            })
+            return
+        }
+        res.status(200).json({participante})
     }
 
     static async editarParticipante(req,res){
@@ -257,5 +272,12 @@ module.exports = class ParticipanteController{
         }
 
         
+    }
+    static async restaurarSenha(req, res){
+        const cpf = req.params.cpf
+
+        const participante = await Participante.findByCpf(cpf).select("-senha")
+        const idParticipante = participante.id;
+        res.status(200).json({idParticipante})
     }
 }

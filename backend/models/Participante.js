@@ -27,6 +27,10 @@ const ParticipanteSchema = new Schema({
     tipoParticipante:{
         type: Number,
         required: true,
+    },
+    ano: {
+        type: Number,
+        required: true,
     }
 }, { timestamps: true });
 ParticipanteSchema.set('toJSON',{
